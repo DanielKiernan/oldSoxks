@@ -7,3 +7,9 @@
   background-color: blue;
   opacity: 0.4;
 }
+
+#body {
+  margin: auto;
+  width: 50%;
+  text-align: center;
+}
