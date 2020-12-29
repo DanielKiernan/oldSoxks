@@ -34,12 +34,49 @@ controls.tool = function(cx) {
   for var name in tools
     select.appendChild(elt("option", null, name));
     
-    cx.canvas.addEventListener("mousedown", function(Event)) {
+    cx.canvas.addEventListener("mousedown", function(Event) {
       if (event.which == 1) {
       tools[select.value](event, cx);
       event.preventDefault();
       }
-  });
+    });
   
   return elt("span", null, "Tool: ", select);
+  };
+
+function relativePos(event, element) {
+  var rect = element.getBoundingClientRec();
+  return {x: Math.floor(event.clientX - rect.left),
+          y: Math.floor(event.clientY - rect.top)};
+}
+
+function trackDrag(onMove, onEnd) {
+  function end(event) {
+    removeEventListener("mouseMove", onMove);
+    removeEventListener("mouseup", end);
+    if (onEnd)
+      onEnd(event);
+  }
+  addEventListener("mousemove", onMove);
+  addEventListener("mouseup", end);
+}
+
+tools.Line = function(event. cx. onEnd) {
+  cx.lineCap = "round";
+  
+  var pos = relativePos(event, cx.canvas);
+  trackDrag(function(event) {
+    cx.beginPath();
+    cx.moveTo(pos.x, pos.y);
+    pos = relativePos(event, cx.canvas);
+    cx.lineTo(pos.x, pos.y);
+    cx.stroke();
+  }, onEnd);
+};
+
+tools.Erase = function(event, cx) {
+  cx.globalCompositeOperation = "destination-out";
+  tools.Line(event, cx, function() {
+    cx.globalCompositeOperation = "source-over";
+  });
 };
