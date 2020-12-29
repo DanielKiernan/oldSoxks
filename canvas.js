@@ -14,45 +14,45 @@ function elt(name, attributes) {
   return node;
 }
 
-var controls = Object.create(null)
+var controls = Object.create(null);
 
 function createPaint(parent) {
-var canvas = elt("canvas", {width: 500, height: 300});
-var cx = canvas.getContext("2d");
-var toolbar = elt("div", {class: "toolbar"});
-for (var name in controls)
-  toolbar.appendChild(controls[name](cx));
+  var canvas = elt("canvas", {width: 500, height: 300});
+  var cx = canvas.getContext("2d");
+  var toolbar = elt("div", {class: "toolbar"});
+  for (var name in controls)
+    toolbar.appendChild(controls[name](cx));
 
-var panel = elt("div", {class: "picturepanel"});
-parent.appendChild(elt("div", null, panel, toolbar);
+  var panel = elt("div", {class: "picturepanel"}, canvas);
+  parent.appendChild(elt("div", null, panel, toolbar));
 }
 
 var tools = Object.create(null);
 
 controls.tool = function(cx) {
   var select = elt("select");
-  for var name in tools
+  for (var name in tools)
     select.appendChild(elt("option", null, name));
-    
-    cx.canvas.addEventListener("mousedown", function(Event) {
-      if (event.which == 1) {
+
+  cx.canvas.addEventListener("mousedown", function(event) {
+    if (event.which == 1) {
       tools[select.value](event, cx);
       event.preventDefault();
-      }
-    });
-  
+    }
+  });
+
   return elt("span", null, "Tool: ", select);
-  };
+};
 
 function relativePos(event, element) {
-  var rect = element.getBoundingClientRec();
+  var rect = element.getBoundingClientRect();
   return {x: Math.floor(event.clientX - rect.left),
           y: Math.floor(event.clientY - rect.top)};
 }
 
 function trackDrag(onMove, onEnd) {
   function end(event) {
-    removeEventListener("mouseMove", onMove);
+    removeEventListener("mousemove", onMove);
     removeEventListener("mouseup", end);
     if (onEnd)
       onEnd(event);
@@ -61,9 +61,9 @@ function trackDrag(onMove, onEnd) {
   addEventListener("mouseup", end);
 }
 
-tools.Line = function(event. cx. onEnd) {
+tools.Line = function(event, cx, onEnd) {
   cx.lineCap = "round";
-  
+
   var pos = relativePos(event, cx.canvas);
   trackDrag(function(event) {
     cx.beginPath();
